@@ -1,24 +1,7 @@
-function populateList() {
-    const data = Array.from({ length: 100 }).map(
-        (_, i) => `<div class="item"> Item ${i+1}</div>`);
+const data = Array.from({ length: 100 }).map(
+    (_, i) => `Item ${i+1}`);
 
-    const list = document.querySelector('#paginate .list');
-
-    //colocando item na div list obs: .join("") p/ tirar virgula
-    list.innerHTML = data.join(""); 
-    console.log(list);
-
-    //para usar
-    return data;
-
-}
-
-const data = populateList();
-const html = {
-    get(element) {
-        return document.querySelector(element)
-    }
-}
+//===========================================
 
 let perPage = 5;
 const state = {
@@ -26,6 +9,12 @@ const state = {
     perPage: perPage,
     //arredonda numer de pagina pra cima
     totalPages: Math.ceil(data.length / perPage),
+}
+//facilitar na seleçao de elementos html
+const html = {
+    get(element) {
+        return document.querySelector(element)
+    }
 }
 
 const controls = {
@@ -79,11 +68,39 @@ const controls = {
     }
 }
 
-controls.createListeners();
+const list = {
+    create(item) {
+        console.log(item)
+        const div = document.createElement('div');
+        div.classList.add('item');
+        div.innerHTML = item;
 
-function update() {
-    console.log(state.page);   
+        html.get('.list').appendChild(div);
+    },
+    update() {
+        html.get('.list').innerHTML = ""
+
+        let page = state.page - 1 // 1
+        let start = page * state.perPage //1*5
+        let end = start + state.perPage //5+5
+
+        //SLICE corta o array   apartir da posição 2 até elementos  5 slice(2, 5)
+        const paginatedItems =  data.slice(start, end);
+
+        //criando item para cada elemendo do array de 5 
+        paginatedItems.forEach(list.create)
+    },
 }
 
+function update() {
+    list.update();
+}
+
+function init() {
+    list.update();
+    controls.createListeners();
+}
+
+init();
 
 
